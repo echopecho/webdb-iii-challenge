@@ -51,6 +51,38 @@ server.get('/api/cohorts/:id/students', async (req, res) => {
   }
 });
 
+server.post('/api/cohorts', async (req, res) => {
+  try {
+    await db('cohorts').insert(req.body);
+    res.status(201).json({message: "Cohort added!"})
+  } catch (e) {
+    res.status(500).json({error: "Something went wrong with the server."});
+  }
+});
+
+server.put('/api/cohorts/:id', async (req, res) => {
+  try {
+    const updatedCohort = await db('cohorts').where({ id: req.params.id }).update(req.body);
+    res.status(201).json(updatedCohort);
+  } catch (e) {
+    res.status(500).json({error: "Something went wrong with the server."})
+  }
+});
+
+server.delete('/api/cohorts/:id', async (req, res) => {
+  try {
+    const cohort = await db('cohorts').where({ id: req.params.id }).first();
+    if(cohort) {
+      await db('cohorts').where({ id: req.params.id }).del();
+      res.status(201).json({message: "That cohort was deleted"});
+    } else {
+      res.status(404).json({message: "That cohort was not found"});
+    }
+  } catch (e) {
+    res.status(500).json({error: "Something went wrong with the server"});
+  }
+})
+
 const port = process.env.PORT || 8000;
 server.listen(port, () => {
   console.log(`Server is running on port ${port}`);
